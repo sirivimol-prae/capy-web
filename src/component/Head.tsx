@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 const backgroundLines = [
   { top: "25%", left: "10%", width: "250px", rotate: "45deg" },
@@ -30,12 +31,12 @@ const Head = () => {
     }, 5000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [roles.length]);
   
   return (
     <section
       id="head"
-      className="min-h-screen flex items-center justify-center bg-gradient-to-b from-red-900 via-black to-black text-white px-4 sm:px-6 relative overflow-hidden"
+      className="min-h-screen flex items-center justify-center bg-gradient-to-b from-red-900 via-black to-black text-white px-6 relative overflow-hidden"
     >
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-0 left-0 w-full h-full">
@@ -55,34 +56,36 @@ const Head = () => {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12 z-10">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12 z-10">
         <motion.div
-          className="relative w-56 h-56 sm:w-64 sm:h-64 md:w-72 md:h-72 lg:w-80 lg:h-80 mb-8 lg:mb-0"
+          className="relative w-64 h-64 md:w-80 md:h-80"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={loaded ? { opacity: 1, scale: 1 } : {}}
           transition={{ duration: 0.8 }}
         >
           <div className="w-full h-full rounded-full overflow-hidden border-4 border-red-500 shadow-2xl relative">
-            <img
+            <Image
               src="/uploads/profile.jpg"
               alt="profile"
               className="w-full h-full object-cover scale-110 transition-transform duration-300"
+              width={400}
+              height={400}
             />
           </div>
 
           <motion.div 
-            className="absolute -top-6 -left-6 w-8 sm:w-12 h-8 sm:h-12 rounded-full bg-red-600 opacity-70"
+            className="absolute -top-6 -left-6 w-12 h-12 rounded-full bg-red-600 opacity-70"
             animate={{ y: [0, -10, 0], x: [0, 5, 0] }}
             transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
           />
           <motion.div 
-            className="absolute -bottom-4 -right-4 w-6 sm:w-8 h-6 sm:h-8 rounded-full bg-red-400 opacity-70"
+            className="absolute -bottom-4 -right-4 w-8 h-8 rounded-full bg-red-400 opacity-70"
             animate={{ y: [0, 10, 0], x: [0, -8, 0] }}
             transition={{ repeat: Infinity, duration: 4, ease: "easeInOut", delay: 1 }}
           />
         </motion.div>
 
-        <div className="max-w-xl text-center lg:text-left">
+        <div className="max-w-xl">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={loaded ? { opacity: 1, y: 0 } : {}}
@@ -93,26 +96,26 @@ const Head = () => {
           </motion.div>
 
           <motion.h1
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-4 sm:mb-6 leading-tight"
+            className="text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight"
             initial={{ opacity: 0, y: -50 }}
             animate={loaded ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Hi, I'm <span className="text-red-400">Sirivimol</span>
+            Hi, I&apos;m <span className="text-red-400">Sirivimol</span>
           </motion.h1>
 
           <motion.div 
-            className="text-lg sm:text-xl md:text-2xl mb-6 sm:mb-10"
+            className="text-xl md:text-2xl mb-10"
             initial={{ opacity: 0 }}
             animate={loaded ? { opacity: 1 } : {}}
             transition={{ duration: 1, delay: 0.5 }}
           >
-            <div className="flex flex-wrap items-center justify-center lg:justify-start">
-              <span className="text-gray-300 mr-2">I'm a</span>
-              <div className="inline-block relative h-8 min-w-56 sm:min-w-80">
+            <div className="flex flex-wrap items-center">
+              <span className="text-gray-300 mr-2">I&apos;m a</span>
+              <div className="inline-block relative h-8 min-w-80">
                 <motion.span
                   key={roleIndex}
-                  className="text-red-300 font-medium absolute left-0 right-0 lg:right-auto text-center lg:text-left"
+                  className="text-red-300 font-medium absolute left-0"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -125,15 +128,15 @@ const Head = () => {
           </motion.div>
 
           <motion.p
-            className="text-base sm:text-lg md:text-xl mb-8 sm:mb-10 text-gray-300"
+            className="text-lg md:text-xl mb-10 text-gray-300"
             initial={{ opacity: 0 }}
             animate={loaded ? { opacity: 1 } : {}}
             transition={{ duration: 1, delay: 0.7 }}
           >
             Specialized in creating beautiful, functional, 
-            <br className="hidden sm:block" />
+            <br />
             and user-friendly digital experiences with attention 
-            <br className="hidden sm:block" />
+            <br />
             to detail and focus on performance.
           </motion.p>
         </div>

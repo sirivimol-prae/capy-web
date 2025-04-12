@@ -1,8 +1,9 @@
 "use client";
 
-import { motion, useAnimation, PanInfo, AnimatePresence } from "framer-motion";
+import { motion, PanInfo, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { skillsData, skillCategories } from "./skillData";
+import Image from "next/image";
 
 const Skills = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -13,7 +14,6 @@ const Skills = () => {
   const [startX, setStartX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [dragDistance, setDragDistance] = useState(0);
-  const [isChangingCategory, setIsChangingCategory] = useState(false);
   const controlsRef = useRef(null);
 
   const filteredSkills = skillsData.filter(skill => skill.category === activeCategory);
@@ -48,11 +48,9 @@ const Skills = () => {
 
   useEffect(() => {
     if (activeCategory !== previousCategory) {
-      setIsChangingCategory(true);
       setPreviousCategory(activeCategory);
       
       const timer = setTimeout(() => {
-        setIsChangingCategory(false);
         setActiveSkillIndex(0);
       }, 600);
       
@@ -124,16 +122,6 @@ const Skills = () => {
   const handleCategoryChange = (categoryId: string) => {
     if (categoryId !== activeCategory) {
       setActiveCategory(categoryId);
-    }
-  };
-
-  const getCategoryColorClass = (baseClass: string) => {
-    if (activeCategoryData.id === 'webdev') {
-      return baseClass.replace('COLOR', 'red');
-    } else if (activeCategoryData.id === 'languages') {
-      return baseClass.replace('COLOR', 'blue');
-    } else {
-      return baseClass.replace('COLOR', 'purple');
     }
   };
 
@@ -503,12 +491,14 @@ const Skills = () => {
                           ...shadowStyle
                         }}
                       >
-                        <div className="w-full h-[75%] overflow-hidden">
-                          <img 
+                        <div className="w-full h-[75%] overflow-hidden relative">
+                          <Image 
                             src={skill.image}
                             alt={`${skill.name} icon`} 
                             className="w-full h-full object-cover"
-                            draggable="false"
+                            width={220}
+                            height={165}
+                            draggable={false}
                           />
                         </div>
                         <div className="p-2 sm:p-3 text-center">

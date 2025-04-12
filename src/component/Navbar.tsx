@@ -305,11 +305,11 @@ const Navbar = () => {
             
             <div className="w-full max-w-md mx-auto px-6 z-10 flex flex-col items-center relative">
               <div className="w-full flex flex-col space-y-5">
-                {menuItems.map((item, i) => (
+                {menuItems.map((item) => (
                   <motion.a
                     key={item.id}
                     href={`#${item.id}`}
-                    className={`relative overflow-hidden group`}
+                    className="relative overflow-hidden group"
                     onClick={(e) => {
                       e.preventDefault();
                       handleLinkClick(item.id);
