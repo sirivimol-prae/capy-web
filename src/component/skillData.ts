@@ -63,7 +63,7 @@ export interface SkillItem {
       icon: "🐘", 
       category: "webdev",
       description: "Designing and optimizing relational database schemas and queries.",
-      image: "/uploads/postgresql.png"
+      image: "/uploads/postgresql.jpg"
     },
     { 
       id: "mysql",
