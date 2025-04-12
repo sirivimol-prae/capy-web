@@ -204,7 +204,7 @@ const Education = () => {
                       </div>
                       <div>
                         <div className="text-xs sm:text-sm text-gray-400">Duration</div>
-                        <div className="text-sm sm:text-base text-white">June 2021 - <br className="sm:hidden" /> March 2025</div>
+                        <div className="text-sm sm:text-base text-white">June 2021 - March 2025</div>
                       </div>
                     </div>
                   </motion.div>

@@ -1,4 +1,4 @@
-// skillsData.ts
+
 export interface SkillItem {
     id: string;
     name: string;
@@ -120,7 +120,8 @@ export interface SkillItem {
       image: "/uploads/trello.png"
     },
     
-    // Programming Languages
+    // -----------------------------------Programming Languages----------------------------------------- //
+
     { 
       id: "php-lang",
       name: "PHP", 
@@ -185,7 +186,8 @@ export interface SkillItem {
       image: "/uploads/kotlin.png"
     },
     
-    // Tools & Platforms
+    // --------------------------------------------Tools & Platforms----------------------------------------- //
+
     { 
       id: "figma",
       name: "Figma", 
@@ -269,7 +271,6 @@ export interface SkillItem {
     },
   ];
   
-  // ข้อมูลหมวดหมู่ทักษะ
   export const skillCategories: SkillCategory[] = [
     {
       id: "webdev",
@@ -300,7 +301,6 @@ export interface SkillItem {
     }
   ];
   
-  // การจัดกลุ่มทักษะตามหมวดหมู่
   export const skillGroups = {
     "webdev": {
       "Frontend": ["react", "vue", "nextjs"],

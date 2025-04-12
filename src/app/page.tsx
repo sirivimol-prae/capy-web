@@ -5,6 +5,7 @@ import Skills from "../component/Skills";
 import Contact from "../component/Contact";
 import Navbar from "../component/Navbar";
 import ScrollToTop from "../component/ScrollToTop";
+import Portfolio from "../component/Portfolio";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <AboutMe />
       <Education />
       <Skills />
+      <Portfolio />
       <Contact />
       <ScrollToTop />
     </main>

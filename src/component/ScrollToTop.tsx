@@ -3,17 +3,11 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-/**
- * Component แสดงปุ่มเลื่อนขึ้นด้านบน (Scroll to Top)
- * ที่มีเอฟเฟกต์สวยงามแบบ interactive
- * แสดงในมุมขวาล่างของหน้าจอเมื่อเลื่อนลงมาเกิน 300px
- */
 const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
 
-  // ตรวจสอบว่าควรแสดงปุ่มหรือไม่ (เมื่อเลื่อนลงมาเกิน 300px)
   useEffect(() => {
     const toggleVisibility = () => {
       if (window.scrollY > 300) {
@@ -32,27 +26,22 @@ const ScrollToTop = () => {
   const scrollToTop = () => {
     setIsClicked(true);
     
-    // เลื่อนอย่างนุ่มนวลไปที่ด้านบนของหน้า
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
     
-    // รีเซ็ตสถานะคลิกหลังจากเลื่อนเสร็จ
     setTimeout(() => {
       setIsClicked(false);
     }, 1000);
     
-    // เพิ่มการสั่นด้วย Web Vibration API (เฉพาะมือถือที่รองรับ)
     if (navigator.vibrate) {
       navigator.vibrate([15, 30, 15]);
     }
   };
 
-  // เอฟเฟกต์พาร์ทิเคิลเมื่อคลิกปุ่ม
   const particles = Array.from({ length: 16 }, (_, i) => i);
   
-  // สีของพาร์ทิเคิล
   const particleColors = [
     "bg-red-300", "bg-red-400", "bg-red-500", 
     "bg-yellow-300", "bg-orange-300", "bg-white"
@@ -77,10 +66,8 @@ const ScrollToTop = () => {
             whileTap={{ scale: 0.9 }}
             aria-label="เลื่อนขึ้นด้านบน"
           >
-            {/* ปุ่มและแสงเรืองแสง */}
             <div className="absolute inset-0 bg-gradient-to-tr from-red-600 via-red-500 to-red-400 opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
             
-            {/* วงกลมเรืองแสงเบื้องหลัง */}
             <motion.div
               className="absolute inset-0 rounded-full"
               animate={{
@@ -91,9 +78,7 @@ const ScrollToTop = () => {
               transition={{ duration: 0.4 }}
             />
 
-            {/* ไอคอนลูกศรและเอฟเฟกต์ */}
             <div className="relative">
-              {/* ลูกศรหลัก */}
               <motion.svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 relative z-10"
@@ -119,7 +104,6 @@ const ScrollToTop = () => {
                 />
               </motion.svg>
               
-              {/* เงาลูกศร */}
               {isHovered && (
                 <motion.svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -146,11 +130,9 @@ const ScrollToTop = () => {
               )}
             </div>
             
-            {/* เอฟเฟกต์สายฟ้าเมื่อกดปุ่ม */}
             <AnimatePresence>
               {isClicked && (
                 <>
-                  {/* วงแสงสว่างจ้าหลายชั้น */}
                   <motion.div 
                     className="absolute inset-0 rounded-full bg-white"
                     initial={{ opacity: 0.8, scale: 1 }}
@@ -159,7 +141,6 @@ const ScrollToTop = () => {
                     transition={{ duration: 0.7 }}
                   />
                   
-                  {/* วงแสงสีแดง */}
                   <motion.div 
                     className="absolute inset-0 rounded-full bg-red-500"
                     initial={{ opacity: 0.6, scale: 1 }}
@@ -168,13 +149,9 @@ const ScrollToTop = () => {
                     transition={{ duration: 0.5, delay: 0.1 }}
                   />
                   
-                  {/* พาร์ทิเคิลกระจายออกแบบสุ่มสี */}
                   {particles.map((i) => {
-                    // สุ่มสีจาก particleColors
                     const randomColor = particleColors[Math.floor(Math.random() * particleColors.length)];
-                    // สุ่มขนาดพาร์ทิเคิล
                     const size = Math.random() * 3 + 1;
-                    // สุ่มระยะทางที่พาร์ทิเคิลจะกระจายออกไป (30-50px)
                     const distance = Math.random() * 20 + 30;
                     
                     return (
@@ -205,7 +182,6 @@ const ScrollToTop = () => {
               )}
             </AnimatePresence>
             
-            {/* เรเดียลเกรเดียนท์เรืองแสงเมื่อโฮเวอร์ */}
             <motion.div 
               className="absolute inset-0 rounded-full bg-gradient-to-r from-red-400 via-red-300 to-red-500"
               initial={{ opacity: 0 }}
@@ -213,7 +189,6 @@ const ScrollToTop = () => {
               transition={{ duration: 0.3 }}
             />
             
-            {/* วงแหวนเรืองแสงเมื่อโฮเวอร์ */}
             <AnimatePresence>
               {isHovered && (
                 <motion.div
@@ -227,7 +202,6 @@ const ScrollToTop = () => {
             </AnimatePresence>
           </motion.button>
 
-          {/* ข้อความทูลทิป - แสดงเฉพาะบนจอขนาดกลางขึ้นไป */}
           <AnimatePresence>
             {isHovered && (
               <motion.div

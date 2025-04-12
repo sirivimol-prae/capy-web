@@ -1,24 +1,25 @@
 "use client";
 
-import { motion, useAnimation, PanInfo } from "framer-motion";
+import { motion, useAnimation, PanInfo, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { skillsData, skillCategories } from "./skillData";
 
 const Skills = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [activeCategory, setActiveCategory] = useState(skillCategories[0].id);
+  const [previousCategory, setPreviousCategory] = useState(skillCategories[0].id);
   const [activeSkillIndex, setActiveSkillIndex] = useState(0);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [startX, setStartX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [dragDistance, setDragDistance] = useState(0);
+  const [isChangingCategory, setIsChangingCategory] = useState(false);
   const controlsRef = useRef(null);
 
   const filteredSkills = skillsData.filter(skill => skill.category === activeCategory);
   const activeCategoryData = skillCategories.find(cat => cat.id === activeCategory)!;
 
   useEffect(() => {
-    // ตรวจสอบว่าเป็นอุปกรณ์ที่รองรับ touch หรือไม่ (แต่ไม่ส่งผลต่อการแสดงปุ่มนำทาง)
     const checkTouchDevice = () => {
       setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
     };
@@ -46,8 +47,18 @@ const Skills = () => {
   }, []);
 
   useEffect(() => {
-    setActiveSkillIndex(0);
-  }, [activeCategory]);
+    if (activeCategory !== previousCategory) {
+      setIsChangingCategory(true);
+      setPreviousCategory(activeCategory);
+      
+      const timer = setTimeout(() => {
+        setIsChangingCategory(false);
+        setActiveSkillIndex(0);
+      }, 600);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [activeCategory, previousCategory]);
 
   const handlePrev = () => {
     if (activeSkillIndex > 0) {
@@ -66,7 +77,6 @@ const Skills = () => {
   };
 
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
-    // ดึงค่า X จาก touch หรือ mouse event
     const clientX = 'touches' in e 
       ? (e as React.TouchEvent).touches[0].clientX 
       : (e as React.MouseEvent).clientX;
@@ -79,7 +89,6 @@ const Skills = () => {
   const handleDragMove = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isDragging) return;
     
-    // ดึงค่า X จาก touch หรือ mouse event
     const clientX = 'touches' in e 
       ? (e as React.TouchEvent).touches[0].clientX 
       : (e as React.MouseEvent).clientX;
@@ -93,11 +102,9 @@ const Skills = () => {
     
     setIsDragging(false);
     
-    // ถ้า swipe ไปทางซ้ายมากกว่า 50px ให้ไปรูปถัดไป
     if (dragDistance < -50 && activeSkillIndex < filteredSkills.length - 1) {
       setActiveSkillIndex(activeSkillIndex + 1);
     }
-    // ถ้า swipe ไปทางขวามากกว่า 50px ให้ไปรูปก่อนหน้า
     else if (dragDistance > 50 && activeSkillIndex > 0) {
       setActiveSkillIndex(activeSkillIndex - 1);
     }
@@ -106,13 +113,17 @@ const Skills = () => {
   };
   
   const handlePanEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    // ถ้า swipe ไปทางซ้าย (ค่า delta.x เป็นลบ) ให้ไปรูปถัดไป
     if (info.offset.x < -50 && activeSkillIndex < filteredSkills.length - 1) {
       setActiveSkillIndex(activeSkillIndex + 1);
     }
-    // ถ้า swipe ไปทางขวา (ค่า delta.x เป็นบวก) ให้ไปรูปก่อนหน้า
     else if (info.offset.x > 50 && activeSkillIndex > 0) {
       setActiveSkillIndex(activeSkillIndex - 1);
+    }
+  };
+
+  const handleCategoryChange = (categoryId: string) => {
+    if (categoryId !== activeCategory) {
+      setActiveCategory(categoryId);
     }
   };
 
@@ -126,9 +137,83 @@ const Skills = () => {
     }
   };
 
+  const categoryButtonVariants = {
+    initial: { 
+      scale: 0.9, 
+      opacity: 0
+    },
+    animate: (i: number) => ({ 
+      scale: 1, 
+      opacity: 1, 
+      transition: { 
+        delay: 0.1 * i,
+        duration: 0.4,
+        type: "spring",
+        stiffness: 200,
+      } 
+    }),
+    hover: { 
+      scale: 1.05,
+      y: -5,
+      boxShadow: "0 10px 20px rgba(0, 0, 0, 0.2)",
+      transition: { 
+        type: "spring", 
+        stiffness: 400, 
+        damping: 10 
+      }
+    },
+    tap: { 
+      scale: 0.95,
+      boxShadow: "0 5px 10px rgba(0, 0, 0, 0.1)",
+    },
+    active: {
+      scale: 1.05,
+      y: -2,
+    }
+  };
+
+  const categoryContainerVariants = {
+    hidden: { 
+      opacity: 0,
+    },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        duration: 0.4,
+        when: "beforeChildren",
+        staggerChildren: 0.1
+      }
+    },
+    exit: { 
+      opacity: 0,
+      transition: { 
+        duration: 0.3 
+      }
+    }
+  };
+
   return (
-    <section id="skills" className="py-16 sm:py-20 md:py-24 bg-black text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <section id="skills" className="py-16 sm:py-20 md:py-24 bg-black text-white relative overflow-hidden">
+      <motion.div 
+        className="absolute h-px w-full left-0 bg-gradient-to-r from-transparent via-red-500/30 to-transparent"
+        initial={{ opacity: 0, top: "25%" }}
+        animate={isVisible ? { opacity: 1, top: ["25%", "35%", "25%"] } : {}}
+        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+      />
+      <motion.div 
+        className="absolute h-px w-full left-0 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent"
+        initial={{ opacity: 0, top: "45%" }}
+        animate={isVisible ? { opacity: 1, top: ["45%", "55%", "45%"] } : {}}
+        transition={{ duration: 12, repeat: Infinity, ease: "linear", delay: 2 }}
+      />
+      <motion.div 
+        className="absolute h-px w-full left-0 bg-gradient-to-r from-transparent via-purple-500/25 to-transparent"
+        initial={{ opacity: 0, top: "65%" }}
+        animate={isVisible ? { opacity: 1, top: ["65%", "75%", "65%"] } : {}}
+        transition={{ duration: 18, repeat: Infinity, ease: "linear", delay: 4 }}
+      />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         <motion.h2 
           className="text-3xl sm:text-4xl md:text-5xl font-bold text-center text-red-500 mb-6 sm:mb-8"
           initial={{ opacity: 0, y: -20 }}
@@ -139,189 +224,350 @@ const Skills = () => {
         </motion.h2>
 
         <motion.div 
-          className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 mb-8 sm:mb-10 md:mb-12"
+          className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 mb-8 sm:mb-10 md:mb-12 relative"
           initial={{ opacity: 0, y: 20 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, delay: 0.2 }}
         >
-          {skillCategories.map((category) => (
+          <motion.div
+            className="absolute -z-10 w-20 h-20 rounded-full bg-red-500/5 blur-xl"
+            animate={{
+              x: [0, 50, -50, 0],
+              y: [0, -30, 30, 0],
+              scale: [1, 1.2, 0.8, 1],
+            }}
+            transition={{
+              duration: 15,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+            style={{ left: "10%", top: "20%" }}
+          />
+          <motion.div
+            className="absolute -z-10 w-24 h-24 rounded-full bg-blue-500/5 blur-xl"
+            animate={{
+              x: [0, -40, 40, 0],
+              y: [0, 20, -20, 0],
+              scale: [1, 0.8, 1.2, 1],
+            }}
+            transition={{
+              duration: 18,
+              repeat: Infinity,
+              ease: "linear",
+              delay: 2,
+            }}
+            style={{ right: "15%", top: "10%" }}
+          />
+          <motion.div
+            className="absolute -z-10 w-16 h-16 rounded-full bg-purple-500/5 blur-xl"
+            animate={{
+              x: [0, 30, -30, 0],
+              y: [0, -25, 25, 0],
+              scale: [1, 1.1, 0.9, 1],
+            }}
+            transition={{
+              duration: 12,
+              repeat: Infinity,
+              ease: "linear",
+              delay: 1,
+            }}
+            style={{ left: "25%", bottom: "20%" }}
+          />
+
+          {skillCategories.map((category, i) => (
             <motion.button
               key={category.id}
-              onClick={() => setActiveCategory(category.id)}
-              className={`relative px-3 sm:px-4 md:px-6 py-2 sm:py-3 rounded-lg flex flex-col items-center transition-all duration-300 ${
+              onClick={() => handleCategoryChange(category.id)}
+              className={`relative px-3 sm:px-4 md:px-6 py-2 sm:py-3 rounded-xl flex flex-col items-center transition-all duration-300 overflow-hidden ${
                 activeCategory === category.id 
-                  ? category.gradient
-                  : "bg-gray-900"
+                  ? category.gradient + " border border-" + category.borderColor.split('-')[1]
+                  : "bg-gray-900 hover:bg-gray-800"
               }`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              variants={categoryButtonVariants}
+              initial="initial"
+              animate="animate"
+              whileHover="hover"
+              whileTap="tap"
+              custom={i}
+              style={{ transformOrigin: "center bottom" }}
             >
-              <span className="text-lg sm:text-xl mb-1">{category.icon}</span>
-              <span className="font-medium text-xs sm:text-sm md:text-base text-center">
+              {activeCategory === category.id && (
+                <motion.div
+                  className={`absolute inset-0 ${category.gradient.replace('20', '40')} opacity-0`}
+                  animate={{ 
+                    opacity: [0, 0.5, 0],
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    repeatType: "reverse",
+                  }}
+                />
+              )}
+
+              <motion.span 
+                className={`text-lg sm:text-xl mb-1 ${
+                  activeCategory === category.id 
+                    ? "text-white" 
+                    : "text-gray-400"
+                }`}
+                animate={
+                  activeCategory === category.id 
+                    ? { 
+                        scale: [1, 1.2, 1],
+                        rotate: [0, 5, -5, 0],
+                        transition: {
+                          scale: { duration: 0.5 },
+                          rotate: { duration: 0.5, delay: 0.2 }
+                        }
+                      } 
+                    : {}
+                }
+              >
+                {category.icon}
+              </motion.span>
+              
+              <span className={`font-medium text-xs sm:text-sm md:text-base text-center ${
+                activeCategory === category.id 
+                  ? "text-white" 
+                  : "text-gray-300"
+              }`}>
                 {category.name}
               </span>
+              
+              {activeCategory === category.id && (
+                <motion.div
+                  className={`absolute bottom-0 left-0 h-1 bg-gradient-to-r ${category.color}`}
+                  layoutId="category-underline"
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 0.3 }}
+                />
+              )}
             </motion.button>
           ))}
         </motion.div>
 
-        <motion.div
-          className="relative w-full mx-auto mb-6 sm:mb-8"
+        <motion.div 
+          className="text-center mb-8 max-w-xl mx-auto"
           initial={{ opacity: 0 }}
-          animate={isVisible ? { opacity: 1 } : {}}
-          transition={{ duration: 0.8, delay: 0.3 }}
-          style={{ height: "280px", minHeight: "280px" }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
         >
-          {/* ปุ่มนำทางจะแสดงเสมอ ไม่ว่าจะเป็นอุปกรณ์ประเภทใด */}
-          {activeSkillIndex > 0 && (
-            <button 
-              className="absolute left-0 top-1/2 transform -translate-y-1/2 z-30 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/80 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
-              onClick={handlePrev}
-              aria-label="Previous skill"
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={activeCategoryData.id}
+              className="text-gray-400 text-sm md:text-base"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
             >
-              <span className="text-lg sm:text-xl">&larr;</span>
-            </button>
-          )}
+              {activeCategoryData.description}
+            </motion.p>
+          </AnimatePresence>
+        </motion.div>
 
-          {activeSkillIndex < filteredSkills.length - 1 && (
-            <button 
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 z-30 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/80 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
-              onClick={handleNext}
-              aria-label="Next skill"
-            >
-              <span className="text-lg sm:text-xl">&rarr;</span>
-            </button>
-          )}
-
-          <motion.div 
-            className="relative flex justify-center items-center h-full overflow-hidden cursor-grab active:cursor-grabbing"
-            ref={controlsRef}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.2}
-            onPanEnd={handlePanEnd}
-            onTouchStart={handleDragStart}
-            onTouchMove={handleDragMove}
-            onTouchEnd={handleDragEnd}
-            onMouseDown={handleDragStart}
-            onMouseMove={handleDragMove}
-            onMouseUp={handleDragEnd}
-            onMouseLeave={handleDragEnd}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeCategory}
+            className="relative w-full mx-auto mb-6 sm:mb-8"
+            variants={categoryContainerVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            style={{ height: "280px", minHeight: "280px" }}
           >
-            <div className="relative flex justify-center items-center w-full h-full">
-              {filteredSkills.map((skill, index) => {
-                const isActive = index === activeSkillIndex;
-                const isPrev = index === activeSkillIndex - 1;
-                const isNext = index === activeSkillIndex + 1;
-                const isDimmed = !isActive && !isPrev && !isNext;
-                
-                let xPosition = 0;
-                if (isActive) {
-                  xPosition = 0; 
-                } else if (isPrev) {
-                  xPosition = -200;
-                } else if (isNext) {
-                  xPosition = 200;
-                } else {
-                  xPosition = index < activeSkillIndex ? -400 : 400;
-                }
-                
-                let textColorClass = "";
-                if (activeCategoryData.id === 'webdev') {
-                  textColorClass = "text-red-400";
-                } else if (activeCategoryData.id === 'languages') {
-                  textColorClass = "text-blue-400";
-                } else {
-                  textColorClass = "text-purple-400";
-                }
-                
-                let shadowStyle = {};
-                if (isActive) {
-                  if (activeCategoryData.id === 'webdev') {
-                    shadowStyle = { boxShadow: "0 0 20px 5px rgba(239, 68, 68, 0.3)" };
-                  } else if (activeCategoryData.id === 'languages') {
-                    shadowStyle = { boxShadow: "0 0 20px 5px rgba(37, 99, 235, 0.3)" };
+            {activeSkillIndex > 0 && (
+              <motion.button 
+                className={`absolute left-0 top-1/2 transform -translate-y-1/2 z-30 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/80 text-white flex items-center justify-center transition-colors ${
+                  activeCategoryData.id === 'webdev' ? 'hover:bg-red-600' :
+                  activeCategoryData.id === 'languages' ? 'hover:bg-blue-600' :
+                  'hover:bg-purple-600'
+                }`}
+                onClick={handlePrev}
+                aria-label="Previous skill"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <span className="text-lg sm:text-xl">&larr;</span>
+              </motion.button>
+            )}
+
+            {activeSkillIndex < filteredSkills.length - 1 && (
+              <motion.button 
+                className={`absolute right-0 top-1/2 transform -translate-y-1/2 z-30 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black/80 text-white flex items-center justify-center transition-colors ${
+                  activeCategoryData.id === 'webdev' ? 'hover:bg-red-600' :
+                  activeCategoryData.id === 'languages' ? 'hover:bg-blue-600' :
+                  'hover:bg-purple-600'
+                }`}
+                onClick={handleNext}
+                aria-label="Next skill"
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <span className="text-lg sm:text-xl">&rarr;</span>
+              </motion.button>
+            )}
+
+            <motion.div 
+              className="relative flex justify-center items-center h-full overflow-hidden cursor-grab active:cursor-grabbing"
+              ref={controlsRef}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.2}
+              onPanEnd={handlePanEnd}
+              onTouchStart={handleDragStart}
+              onTouchMove={handleDragMove}
+              onTouchEnd={handleDragEnd}
+              onMouseDown={handleDragStart}
+              onMouseMove={handleDragMove}
+              onMouseUp={handleDragEnd}
+              onMouseLeave={handleDragEnd}
+            >
+              <div className="relative flex justify-center items-center w-full h-full">
+                {filteredSkills.map((skill, index) => {
+                  const isActive = index === activeSkillIndex;
+                  const isPrev = index === activeSkillIndex - 1;
+                  const isNext = index === activeSkillIndex + 1;
+                  const isDimmed = !isActive && !isPrev && !isNext;
+                  
+                  let xPosition = 0;
+                  if (isActive) {
+                    xPosition = 0; 
+                  } else if (isPrev) {
+                    xPosition = -200;
+                  } else if (isNext) {
+                    xPosition = 200;
                   } else {
-                    shadowStyle = { boxShadow: "0 0 20px 5px rgba(147, 51, 234, 0.3)" };
+                    xPosition = index < activeSkillIndex ? -400 : 400;
+                  }
+                  
+                  let textColorClass = "";
+                  if (activeCategoryData.id === 'webdev') {
+                    textColorClass = "text-red-400";
+                  } else if (activeCategoryData.id === 'languages') {
+                    textColorClass = "text-blue-400";
+                  } else {
+                    textColorClass = "text-purple-400";
+                  }
+                  
+                  let shadowStyle = {};
+                  if (isActive) {
+                    if (activeCategoryData.id === 'webdev') {
+                      shadowStyle = { boxShadow: "0 0 20px 5px rgba(239, 68, 68, 0.3)" };
+                    } else if (activeCategoryData.id === 'languages') {
+                      shadowStyle = { boxShadow: "0 0 20px 5px rgba(37, 99, 235, 0.3)" };
+                    } else {
+                      shadowStyle = { boxShadow: "0 0 20px 5px rgba(147, 51, 234, 0.3)" };
+                    }
+                  }
+                  
+                  return (
+                    <motion.div 
+                      key={skill.id}
+                      className="absolute flex justify-center items-center"
+                      initial={{ 
+                        x: index < activeSkillIndex ? -400 : 400,
+                        opacity: 0,
+                        scale: 0.8,
+                      }}
+                      animate={{ 
+                        x: isDragging ? xPosition + dragDistance : xPosition,
+                        opacity: isDimmed ? 0 : 1,
+                        scale: isActive ? 1 : 0.8,
+                        y: isActive ? 0 : 10,
+                        zIndex: isActive ? 20 : 10
+                      }}
+                      transition={{ 
+                        duration: isDragging ? 0 : 0.5
+                      }}
+                    >
+                      <div 
+                        className={`bg-gray-900 rounded-xl overflow-hidden ${
+                          isActive ? `ring-1 ${
+                            activeCategoryData.id === 'webdev' ? 'ring-red-500/50' :
+                            activeCategoryData.id === 'languages' ? 'ring-blue-500/50' :
+                            'ring-purple-500/50'
+                          }` : ''
+                        }`}
+                        style={{
+                          width: isActive ? 220 : 180,
+                          height: isActive ? 260 : 210,
+                          ...shadowStyle
+                        }}
+                      >
+                        <div className="w-full h-[75%] overflow-hidden">
+                          <img 
+                            src={skill.image}
+                            alt={`${skill.name} icon`} 
+                            className="w-full h-full object-cover"
+                            draggable="false"
+                          />
+                        </div>
+                        <div className="p-2 sm:p-3 text-center">
+                          <h3 className={`text-base sm:text-lg font-bold ${isActive ? textColorClass : 'text-white'}`}>
+                            {skill.name}
+                          </h3>
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </motion.div>
+            
+            <div className="absolute -bottom-2 left-0 right-0 flex justify-center space-x-1 sm:space-x-2">
+              {filteredSkills.map((_, idx) => {
+                let dotColorClass = "bg-gray-700";
+                let dotSizeClass = "w-1.5 h-1.5 sm:w-2 sm:h-2";
+                
+                if (idx === activeSkillIndex) {
+                  dotSizeClass = "w-2 h-2 sm:w-2.5 sm:h-2.5";
+                  if (activeCategoryData.id === 'webdev') {
+                    dotColorClass = "bg-red-500";
+                  } else if (activeCategoryData.id === 'languages') {
+                    dotColorClass = "bg-blue-500";
+                  } else {
+                    dotColorClass = "bg-purple-500";
                   }
                 }
                 
                 return (
-                  <motion.div 
-                    key={skill.id}
-                    className="absolute flex justify-center items-center"
-                    initial={{ x: index < activeSkillIndex ? -400 : 400 }}
-                    animate={{ 
-                      x: isDragging ? xPosition + dragDistance : xPosition,
-                      opacity: isDimmed ? 0 : 1,
-                      scale: isActive ? 1 : 0.8,
-                      y: isActive ? 0 : 10,
-                      zIndex: isActive ? 20 : 10
-                    }}
-                    transition={{ duration: isDragging ? 0 : 0.5 }}
-                  >
-                    <div 
-                      className={`bg-gray-900 rounded-xl overflow-hidden ${
-                        isActive ? 'ring-1 ring-red-500/50' : ''
-                      }`}
-                      style={{
-                        width: isActive ? 220 : 180,
-                        height: isActive ? 260 : 210,
-                        ...shadowStyle
-                      }}
-                    >
-                      <div className="w-full h-[75%] overflow-hidden">
-                        <img 
-                          src={skill.image}
-                          alt={`${skill.name} icon`} 
-                          className="w-full h-full object-cover"
-                          draggable="false"
-                        />
-                      </div>
-                      <div className="p-2 sm:p-3 text-center">
-                        <h3 className={`text-base sm:text-lg font-bold ${isActive ? textColorClass : 'text-white'}`}>
-                          {skill.name}
-                        </h3>
-                      </div>
-                    </div>
-                  </motion.div>
+                  <motion.button
+                    key={idx}
+                    className={`rounded-full transition-all duration-300 ${dotColorClass} ${dotSizeClass}`}
+                    onClick={() => handleDotClick(idx)}
+                    aria-label={`Go to skill ${idx + 1}`}
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.03 * idx, duration: 0.2 }}
+                    whileHover={{ scale: 1.5 }}
+                  />
                 );
               })}
             </div>
           </motion.div>
-          
-          <div className="absolute -bottom-2 left-0 right-0 flex justify-center space-x-1 sm:space-x-2">
-            {filteredSkills.map((_, idx) => {
-              let dotColorClass = "bg-gray-700";
-              
-              if (idx === activeSkillIndex) {
-                if (activeCategoryData.id === 'webdev') {
-                  dotColorClass = "bg-red-500 scale-110";
-                } else if (activeCategoryData.id === 'languages') {
-                  dotColorClass = "bg-blue-500 scale-110";
-                } else {
-                  dotColorClass = "bg-purple-500 scale-110";
-                }
-              }
-              
-              return (
-                <button
-                  key={idx}
-                  className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-300 ${dotColorClass}`}
-                  onClick={() => handleDotClick(idx)}
-                  aria-label={`Go to skill ${idx + 1}`}
-                />
-              );
-            })}
-          </div>
-        </motion.div>
+        </AnimatePresence>
         
-        <div className="text-center text-gray-500 text-xs sm:text-sm md:text-base">
+        <motion.div 
+          className="text-center text-gray-500 text-xs sm:text-sm md:text-base"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1, duration: 0.5 }}
+        >
           <span className="inline-block animate-bounce mr-1">👆</span>
           {isTouchDevice ? 
             "Swipe or use arrows to explore more skills" : 
             "Use arrows to explore more skills"
           }
-        </div>
+        </motion.div>
       </div>
     </section>
   );
