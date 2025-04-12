@@ -57,15 +57,6 @@ export interface SkillItem {
       image: "/uploads/nodejs.png"
     },
     { 
-      id: "php",
-      name: "PHP", 
-      level: 85, 
-      icon: "🐘", 
-      category: "webdev",
-      description: "Developing dynamic web applications and CMS integrations.",
-      image: "/uploads/php.png"
-    },
-    { 
       id: "postgresql",
       name: "PostgreSQL", 
       level: 75, 

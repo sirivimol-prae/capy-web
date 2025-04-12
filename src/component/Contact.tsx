@@ -57,21 +57,24 @@ const Contact = () => {
       value: "sirivimol.prae@gmail.com",
       icon: <Mail className="w-6 h-6" />,
       label: "Email",
-      action: () => copyToClipboard("sirivimol.prae@gmail.com", "email")
+      action: () => copyToClipboard("sirivimol.prae@gmail.com", "email"),
+      clickAction: () => window.location.href = "mailto:sirivimol.prae@gmail.com"
     },
     {
       type: "phone",
       value: "093-602-2389",
       icon: <Phone className="w-6 h-6" />,
       label: "Phone",
-      action: () => copyToClipboard("0936022389", "phone")
+      action: () => copyToClipboard("0936022389", "phone"),
+      clickAction: () => window.location.href = "tel:0936022389"
     },
     {
       type: "address",
       value: "64/2 Moo 7 Thungprang, Sichon, Nakhon Si Thammarat",
       icon: <MapPin className="w-6 h-6" />,
       label: "Address",
-      action: () => copyToClipboard("64/2 Moo 7 Thungprang, Sichon, Nakhon Si Thammarat", "address")
+      action: () => copyToClipboard("64/2 Moo 7 Thungprang, Sichon, Nakhon Si Thammarat", "address"),
+      clickAction: () => copyToClipboard("64/2 Moo 7 Thungprang, Sichon, Nakhon Si Thammarat", "address")
     }
   ];
 
@@ -155,7 +158,10 @@ const Contact = () => {
               animate={isVisible ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.2 + index * 0.1 }}
             >
-              <div onClick={item.action} className="cursor-pointer bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 h-full border border-gray-700 hover:border-red-500/50 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-red-900/20 relative overflow-hidden flex flex-col items-center">
+              <div 
+                onClick={item.type === "phone" ? item.clickAction : undefined}
+                className="cursor-pointer bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 h-full border border-gray-700 hover:border-red-500/50 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-red-900/20 relative overflow-hidden flex flex-col items-center"
+              >
                 <div className="absolute inset-0 bg-gradient-to-br from-red-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
                 <motion.div
@@ -167,15 +173,34 @@ const Contact = () => {
                   Copied!
                 </motion.div>
                 
-                <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-red-700 rounded-full flex items-center justify-center text-white mb-4 shadow-md shadow-red-600/20 group-hover:shadow-lg group-hover:shadow-red-600/40 transition-all duration-300 group-hover:scale-110">
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    item.clickAction();
+                  }}
+                  className="w-14 h-14 bg-gradient-to-br from-red-500 to-red-700 rounded-full flex items-center justify-center text-white mb-4 shadow-md shadow-red-600/20 group-hover:shadow-lg group-hover:shadow-red-600/40 transition-all duration-300 group-hover:scale-110 cursor-pointer"
+                >
                   {item.icon}
                 </div>
                 
                 <h3 className="text-xl font-semibold text-white mb-2">{item.label}</h3>
                 
-                <p className="text-gray-300 text-center mb-4 flex-grow">{item.value}</p>
+                <p 
+                  className={`text-gray-300 text-center mb-4 flex-grow ${item.type === "address" ? "select-all" : ""}`}
+                  onClick={e => {
+                    e.stopPropagation();
+                    if (item.type === "address") {
+                      copyToClipboard("64/2 Moo 7 Thungprang, Sichon, Nakhon Si Thammarat", "address");
+                    }
+                  }}
+                >
+                  {item.value}
+                </p>
                 
-                <div className="text-red-400 text-sm flex items-center mt-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div 
+                  onClick={item.action}
+                  className={`text-red-400 text-sm flex items-center mt-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer ${item.type === "address" ? "hidden" : ""}`}
+                >
                   <span>Click to copy</span>
                   <ArrowRight className="ml-1 w-3 h-3" />
                 </div>
