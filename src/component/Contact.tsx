@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import { Mail, Phone, MapPin, Send, ArrowRight } from "lucide-react";
+import { Mail, Phone, MapPin, Send, ArrowRight, Copy, Check } from "lucide-react";
 
 const FIXED_PARTICLES = [
   { top: "10%", left: "15%", opacity: 0.2 },
@@ -57,15 +57,19 @@ const Contact = () => {
       value: "sirivimol.prae@gmail.com",
       icon: <Mail className="w-6 h-6" />,
       label: "Email",
-      action: () => copyToClipboard("sirivimol.prae@gmail.com", "email"),
-      clickAction: () => window.location.href = "mailto:sirivimol.prae@gmail.com"
+      copyButton: true,
+      selectable: true,
+      action: () => {},
+      clickAction: () => window.open("mailto:sirivimol.prae@gmail.com")
     },
     {
       type: "phone",
       value: "093-602-2389",
       icon: <Phone className="w-6 h-6" />,
       label: "Phone",
-      action: () => copyToClipboard("0936022389", "phone"),
+      copyButton: false,
+      selectable: false,
+      action: () => {},
       clickAction: () => window.location.href = "tel:0936022389"
     },
     {
@@ -73,8 +77,10 @@ const Contact = () => {
       value: "64/2 Moo 7 Thungprang, Sichon, Nakhon Si Thammarat",
       icon: <MapPin className="w-6 h-6" />,
       label: "Address",
-      action: () => copyToClipboard("64/2 Moo 7 Thungprang, Sichon, Nakhon Si Thammarat", "address"),
-      clickAction: () => copyToClipboard("64/2 Moo 7 Thungprang, Sichon, Nakhon Si Thammarat", "address")
+      copyButton: false,
+      selectable: false,
+      action: () => {},
+      clickAction: () => {}
     }
   ];
 
@@ -94,6 +100,28 @@ const Contact = () => {
 
   return (
     <section id="contact" className="py-24 bg-gradient-to-t from-black via-gray-900 to-black text-white relative overflow-hidden">
+      <style jsx global>{`
+        .email-selectable {
+          user-select: all !important;
+          -webkit-user-select: all !important;
+          -moz-user-select: all !important;
+          -ms-user-select: all !important;
+          cursor: text !important;
+        }
+        
+        .non-selectable {
+          user-select: none !important;
+          -webkit-user-select: none !important;
+          -moz-user-select: none !important;
+          -ms-user-select: none !important;
+          cursor: default !important;
+        }
+        
+        .phone-clickable {
+          cursor: pointer !important;
+        }
+      `}</style>
+      
       <div className="absolute inset-0 overflow-hidden">
         {FIXED_PARTICLES.map((particle, i) => (
           <motion.div
@@ -160,7 +188,7 @@ const Contact = () => {
             >
               <div 
                 onClick={item.type === "phone" ? item.clickAction : undefined}
-                className="cursor-pointer bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 h-full border border-gray-700 hover:border-red-500/50 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-red-900/20 relative overflow-hidden flex flex-col items-center"
+                className={`${item.type === "phone" ? "cursor-pointer" : ""} bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 h-full border border-gray-700 hover:border-red-500/50 transition-all duration-300 group-hover:shadow-lg group-hover:shadow-red-900/20 relative overflow-hidden flex flex-col items-center`}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-red-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
@@ -185,25 +213,48 @@ const Contact = () => {
                 
                 <h3 className="text-xl font-semibold text-white mb-2">{item.label}</h3>
                 
-                <p 
-                  className={`text-gray-300 text-center mb-4 flex-grow ${item.type === "address" ? "select-all" : ""}`}
-                  onClick={e => {
-                    e.stopPropagation();
-                    if (item.type === "address") {
-                      copyToClipboard("64/2 Moo 7 Thungprang, Sichon, Nakhon Si Thammarat", "address");
-                    }
-                  }}
-                >
-                  {item.value}
-                </p>
+                {item.type === "email" ? (
+                  <div 
+                    className="email-selectable text-gray-300 text-center mb-2 flex-grow"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    sirivimol.prae@gmail.com
+                  </div>
+                ) : item.type === "phone" ? (
+                  <p className="phone-clickable text-gray-300 text-center mb-2 flex-grow">
+                    {item.value}
+                  </p>
+                ) : (
+                  <p className="non-selectable text-gray-300 text-center mb-2 flex-grow">
+                    {item.value}
+                  </p>
+                )}
                 
-                <div 
-                  onClick={item.action}
-                  className={`text-red-400 text-sm flex items-center mt-auto opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer ${item.type === "address" ? "hidden" : ""}`}
-                >
-                  <span>Click to copy</span>
-                  <ArrowRight className="ml-1 w-3 h-3" />
-                </div>
+                {item.type === "email" && (
+                  <div 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      copyToClipboard("sirivimol.prae@gmail.com", "email");
+                    }}
+                    className="text-red-400 text-sm flex items-center mt-auto opacity-70 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
+                  >
+                    <span className="mr-1">Click to copy</span>
+                    {isCopied === "email" ? (
+                      <Check className="w-4 h-4" />
+                    ) : (
+                      <Copy className="w-4 h-4" />
+                    )}
+                  </div>
+                )}
+                
+                {item.type === "phone" && (
+                  <div className="text-red-400 text-sm flex items-center mt-auto opacity-70 group-hover:opacity-100 transition-opacity duration-300">
+                    <span>Tap to call</span>
+                    <ArrowRight className="ml-1 w-3 h-3" />
+                  </div>
+                )}
               </div>
             </motion.div>
           ))}
