@@ -123,16 +123,14 @@ const Navbar = () => {
   return (
     <>
       <motion.nav
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-          scrolled ? "bg-black/85 backdrop-blur-md shadow-lg shadow-red-900/10" : "bg-transparent"
-        }`}
+        className="fixed top-0 left-0 w-full z-50 transition-all duration-500"
         initial={{ y: 0 }}
         animate={{ y: hidden ? -100 : 0 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="max-w-6xl mx-auto px-6 py-5 flex justify-between items-center text-white">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center text-white backdrop-filter">
           <motion.span 
-            className="text-2xl font-bold z-50 relative"
+            className="text-xl sm:text-2xl font-bold z-50 relative"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
@@ -140,7 +138,7 @@ const Navbar = () => {
             <span className="bg-gradient-to-r from-red-500 to-red-300 bg-clip-text text-transparent">Capy-Web</span>
           </motion.span>
 
-          <div className="space-x-8 hidden md:flex items-center">
+          <div className="space-x-6 hidden md:flex items-center">
             {["about", "education", "skills", "portfolio", "contact"].map((item) => (
               <a 
                 key={item}
@@ -168,7 +166,7 @@ const Navbar = () => {
           </div>
 
           <motion.button 
-            className="md:hidden relative w-12 h-12 rounded-full bg-gradient-to-r from-red-600 to-red-400 text-white flex items-center justify-center z-50 outline-none focus:outline-none shadow-lg shadow-red-600/20"
+            className="md:hidden relative w-10 h-10 rounded-full bg-gradient-to-r from-red-600 to-red-400 text-white flex items-center justify-center z-50 outline-none focus:outline-none shadow-lg shadow-red-600/20"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             whileHover={{ scale: 1.05, boxShadow: "0 0 15px rgba(239, 68, 68, 0.5)" }}
             whileTap={{ scale: 0.95 }}
@@ -177,7 +175,7 @@ const Navbar = () => {
             {mobileMenuOpen ? (
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
-                className="h-6 w-6" 
+                className="h-5 w-5" 
                 fill="none" 
                 viewBox="0 0 24 24" 
                 stroke="currentColor"
@@ -192,7 +190,7 @@ const Navbar = () => {
             ) : (
               <svg 
                 xmlns="http://www.w3.org/2000/svg" 
-                className="h-6 w-6" 
+                className="h-5 w-5" 
                 fill="none" 
                 viewBox="0 0 24 24" 
                 stroke="currentColor"
@@ -218,31 +216,6 @@ const Navbar = () => {
             animate="open"
             exit="closed"
           >
-            <motion.button
-              className="absolute top-6 right-6 w-12 h-12 rounded-full bg-red-500 flex items-center justify-center z-50"
-              onClick={() => setMobileMenuOpen(false)}
-              whileHover={{ scale: 1.1, backgroundColor: "#ef4444" }}
-              whileTap={{ scale: 0.95 }}
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: 0.2 }}
-            >
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                className="h-6 w-6 text-white" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M6 18L18 6M6 6l12 12" 
-                />
-              </svg>
-            </motion.button>
-
             <motion.div 
               className="absolute top-0 left-0 w-full h-full z-0 opacity-30"
               variants={bgVariants}
@@ -304,7 +277,7 @@ const Navbar = () => {
             </motion.div>
             
             <div className="w-full max-w-md mx-auto px-6 z-10 flex flex-col items-center relative">
-              <div className="w-full flex flex-col space-y-5">
+              <div className="w-full flex flex-col space-y-4">
                 {menuItems.map((item) => (
                   <motion.a
                     key={item.id}
@@ -319,7 +292,7 @@ const Navbar = () => {
                     whileTap={{ scale: 0.95 }}
                   >
                     <div className={`
-                      w-full px-6 py-4 rounded-xl 
+                      w-full px-4 py-3 rounded-xl 
                       flex items-center
                       bg-gradient-to-r 
                       ${activeSection === item.id ? 
@@ -329,21 +302,21 @@ const Navbar = () => {
                       transition-all duration-300
                     `}>
                       <div className={`
-                        flex-shrink-0 w-12 h-12 rounded-full
+                        flex-shrink-0 w-10 h-10 rounded-full
                         flex items-center justify-center
                         ${activeSection === item.id ? 
-                          'bg-white text-2xl' : 
-                          'bg-gray-700 text-xl group-hover:bg-gray-600'
+                          'bg-white text-xl' : 
+                          'bg-gray-700 text-lg group-hover:bg-gray-600'
                         }
                         transition-all duration-300
-                        mr-4
+                        mr-3
                       `}>
                         <span>{item.icon}</span>
                       </div>
                       
                       <div className="flex-grow">
                         <span className={`
-                          text-xl font-bold
+                          text-lg font-bold
                           ${activeSection === item.id ? 'text-white' : 'text-white/80 group-hover:text-white'}
                           transition-colors duration-300
                         `}>
@@ -353,7 +326,7 @@ const Navbar = () => {
                       
                       <motion.div 
                         className={`
-                          w-6 h-6 flex items-center justify-center
+                          w-5 h-5 flex items-center justify-center
                           ${activeSection === item.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
                           transition-opacity duration-300
                         `}
@@ -362,7 +335,7 @@ const Navbar = () => {
                           {}
                         }
                       >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                       </motion.div>
@@ -382,7 +355,7 @@ const Navbar = () => {
               </div>
               
               <motion.div 
-                className="mt-10 flex items-center space-x-4 opacity-80"
+                className="mt-8 flex items-center space-x-4 opacity-80"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 0.8, y: 0 }}
                 transition={{ delay: 0.7 }}
@@ -390,13 +363,13 @@ const Navbar = () => {
               >
                 <a 
                   href="https://www.instagram.com/prxx.ws?igsh=ODJveGxmcTJva2tp" 
-                  className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white"
+                  className="w-9 h-9 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white"
                   aria-label="Instagram"
                 >
                   <svg 
                     viewBox="0 0 24 24" 
-                    width="18" 
-                    height="18" 
+                    width="16" 
+                    height="16" 
                     stroke="currentColor" 
                     fill="none" 
                     strokeWidth="2" 
@@ -410,13 +383,13 @@ const Navbar = () => {
                 </a>
                 <a 
                   href="https://www.facebook.com/share/16F1thRoHY/" 
-                  className="w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-400 rounded-full flex items-center justify-center text-white"
+                  className="w-9 h-9 bg-gradient-to-r from-blue-600 to-blue-400 rounded-full flex items-center justify-center text-white"
                   aria-label="Facebook"
                 >
                   <svg 
                     viewBox="0 0 24 24" 
-                    width="18" 
-                    height="18" 
+                    width="16" 
+                    height="16" 
                     stroke="currentColor" 
                     fill="none" 
                     strokeWidth="2" 
@@ -429,7 +402,7 @@ const Navbar = () => {
               </motion.div>
               
               <motion.div 
-                className="text-center mt-12 text-white/50 text-sm"
+                className="text-center mt-8 text-white/50 text-sm"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.9 }}
